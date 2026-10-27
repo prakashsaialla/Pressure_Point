@@ -1,14 +1,19 @@
 import { getStore } from '@netlify/blobs';
-import type { Handler } from '@netlify/functions';
 import { createRoom, joinRoom, startRoom, submitDecision, resolveRound, publicRoom } from '../../shared/game-engine.mjs';
 
-const store = getStore({ name: 'pressure-point-rooms', consistency: 'strong' });
-const json = (body: unknown, statusCode = 200) => ({ statusCode, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, body: JSON.stringify(body) });
-const fail = (message: string, statusCode = 400) => json({ error: message }, statusCode);
+const headers = {
+  'Content-Type': 'application/json; charset=utf-8',
+  'Cache-Control': 'no-store',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+};
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
+const fail = (message: string, status = 400) => json({ error: message }, status);
 const roomKey = (code: string) => `room:${String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)}`;
 const token = () => crypto.randomUUID() + crypto.randomUUID().replaceAll('-', '');
 
-async function mutateRoom(code: string, mutator: (room: any) => any) {
+async function mutateRoom(store: ReturnType<typeof getStore>, code: string, mutator: (room: any) => any) {
   const key = roomKey(code);
   for (let attempt = 0; attempt < 6; attempt++) {
     const current = await store.getWithMetadata(key, { type: 'json', consistency: 'strong' });
@@ -31,20 +36,37 @@ function cleanRoom(room: any, playerId: string) {
   return safe;
 }
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'GET,POST' }, body: '' };
-  const method = event.httpMethod || 'GET';
+// Netlify Functions v2 uses the Web Request/Response API. Netlify Blobs injects
+// its site credentials for this function API; create the store inside the handler.
+export default async function game(request: Request) {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers });
+
+  const method = request.method || 'GET';
   let body: any = {};
-  try { body = method === 'GET' ? (event.queryStringParameters || {}) : JSON.parse(event.body || '{}'); }
-  catch { return fail('Invalid JSON request.'); }
+  try {
+    if (method === 'GET') {
+      const url = new URL(request.url);
+      body = Object.fromEntries(url.searchParams.entries());
+    } else {
+      body = await request.json();
+    }
+  } catch {
+    return fail('Invalid JSON request.');
+  }
+
   const action = String(body.action || (method === 'GET' ? 'state' : ''));
   const playerId = String(body.playerId || '').slice(0, 80);
   const playerToken = String(body.playerToken || '');
   const code = String(body.code || '').toUpperCase();
+
   try {
+    const store = getStore({ name: 'pressure-point-rooms', consistency: 'strong' });
+
     if (action === 'create') {
       if (!playerId) return fail('Missing operator identity.');
-      let room: any; let newToken = token(); let saved = false;
+      let room: any;
+      const newToken = token();
+      let saved = false;
       for (let i = 0; i < 8; i++) {
         room = createRoom(playerId, body.name);
         room.playerTokens = { [playerId]: newToken };
@@ -54,10 +76,11 @@ export const handler: Handler = async (event) => {
       if (!saved) return fail('Could not allocate a room code. Please try again.', 503);
       return json({ room: cleanRoom(room, playerId), playerToken: newToken });
     }
+
     if (action === 'join') {
       if (!playerId) return fail('Missing operator identity.');
       let newToken = token();
-      const updated = await mutateRoom(code, (room) => {
+      const updated = await mutateRoom(store, code, (room) => {
         if (!room.playerTokens) room.playerTokens = {};
         const already = room.players.some((p: any) => p.id === playerId);
         if (already) {
@@ -71,6 +94,7 @@ export const handler: Handler = async (event) => {
       });
       return json({ room: cleanRoom(updated.room, playerId), playerToken: newToken });
     }
+
     if (!code) return fail('Enter a room code.');
     if (action === 'state') {
       const current = await store.getWithMetadata(roomKey(code), { type: 'json', consistency: 'strong' });
@@ -78,12 +102,16 @@ export const handler: Handler = async (event) => {
       const currentRoom: any = current.data;
       requireMember(currentRoom, playerId, playerToken);
       if (currentRoom.status === 'playing' && currentRoom.deadline && Date.now() >= currentRoom.deadline) {
-        const resolved = await mutateRoom(code, (room) => { requireMember(room, playerId, playerToken); if (room.status === 'playing' && room.deadline && Date.now() >= room.deadline) resolveRound(room, Date.now()); });
+        const resolved = await mutateRoom(store, code, (room) => {
+          requireMember(room, playerId, playerToken);
+          if (room.status === 'playing' && room.deadline && Date.now() >= room.deadline) resolveRound(room, Date.now());
+        });
         return json({ room: cleanRoom(resolved.room, playerId) });
       }
       return json({ room: cleanRoom(currentRoom, playerId) });
     }
-    const result = await mutateRoom(code, (room) => {
+
+    const result = await mutateRoom(store, code, (room) => {
       requireMember(room, playerId, playerToken);
       if (action === 'start') startRoom(room, playerId, Date.now());
       else if (action === 'submit') submitDecision(room, playerId, body.decision, Date.now());
@@ -93,6 +121,7 @@ export const handler: Handler = async (event) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unexpected game service error.';
     const status = message.includes('not found') ? 404 : message.includes('not valid') ? 401 : 400;
+    console.error('PRESSURE POINT game function error:', error);
     return fail(message, status);
   }
-};
+}
