@@ -38,9 +38,9 @@ test('two-player three-round match resolves scoring and declares a winner', () =
 test('round timeout resolves exactly once and gives missing players fallback action', () => {
   const room = createRoom('p1', 'Nova', 1000); joinRoom(room, 'p2', 'Cipher'); startRoom(room, 'p1', 1000);
   submitDecision(room, 'p1', { action: 'generate' }, 1100);
-  resolveRound(room, 32001);
+  resolveRound(room, 62001);
   const count = room.resolvedRounds.length;
-  resolveRound(room, 32002);
+  resolveRound(room, 62002);
   assert.equal(room.resolvedRounds.length, count);
   assert.ok(room.eventLog.some(e => e.kind === 'TIMEOUT'));
 });

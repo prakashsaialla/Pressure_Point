@@ -1,6 +1,6 @@
 export const MAX_PLAYERS = 8;
 export const MAX_ROUNDS = 5;
-export const ROUND_MS = 30_000;
+export const ROUND_MS = 60_000;
 export const DISTRICTS = [
   { id: 'exchange', name: 'NEON EXCHANGE', type: 'FINANCE', color: '#52d9ff', reward: '+2 Credits / round' },
   { id: 'grid', name: 'POWER GRID', type: 'ENERGY', color: '#5ef0c0', reward: '+1 Energy / round' },
