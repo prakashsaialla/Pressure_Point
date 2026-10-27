@@ -21,7 +21,15 @@ async function mutateRoom(store: ReturnType<typeof getStore>, code: string, muta
     const room = structuredClone(current.data as any);
     const result = mutator(room);
     const saved = await store.setJSON(key, room, { onlyIfMatch: current.etag });
-    if (saved.modified) return { room, result };
+    if (saved?.modified) return { room, result };
+    // Some deployed Blobs adapters may not return the write result. Verify the
+    // stored value before treating the write as successful.
+    if (saved == null) {
+      const verified = await store.getWithMetadata(key, { type: 'json', consistency: 'strong' });
+      if (verified?.data && JSON.stringify(verified.data) === JSON.stringify(room)) {
+        return { room, result };
+      }
+    }
   }
   throw new Error('The room changed at the same time as your request. Please retry.');
 }
@@ -70,8 +78,15 @@ export default async function game(request: Request) {
       for (let i = 0; i < 8; i++) {
         room = createRoom(playerId, body.name);
         room.playerTokens = { [playerId]: newToken };
-        const write = await store.setJSON(roomKey(room.code), room, { onlyIfNew: true });
-        if (write.modified) { saved = true; break; }
+        const key = roomKey(room.code);
+        const write = await store.setJSON(key, room, { onlyIfNew: true });
+        if (write?.modified) { saved = true; break; }
+        // If the runtime returns no write-result object, verify that our exact
+        // room was persisted. A collision with another room will not match token.
+        if (write == null) {
+          const verified = await store.getWithMetadata(key, { type: 'json', consistency: 'strong' });
+          if (verified?.data?.playerTokens?.[playerId] === newToken) { saved = true; break; }
+        }
       }
       if (!saved) return fail('Could not allocate a room code. Please try again.', 503);
       return json({ room: cleanRoom(room, playerId), playerToken: newToken });
