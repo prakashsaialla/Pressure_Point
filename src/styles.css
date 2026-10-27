@@ -19,3 +19,8 @@
 .action-option{padding:9px}
 .action-copy small{font-size:10px}
 @media(max-width:800px){.instructions-list{gap:8px}.instructions-list li span{font-size:12px}}
+
+/* Accessibility and lobby briefing improvements */
+@media(min-width:801px){.lobby-grid>.briefing-panel{grid-column:1;grid-row:1}.lobby-grid>section:first-child{grid-column:2;grid-row:1}}
+.briefing-panel .instructions-intro{font-size:17px;line-height:1.6;margin:18px 20px 10px}.briefing-panel .instructions-list{gap:15px;margin:12px 20px 20px;padding-left:25px}.briefing-panel .instructions-list li strong{font-size:16px;line-height:1.5}.briefing-panel .instructions-list li span{font-size:14px;line-height:1.7;color:#bac5d9}.briefing-panel .parameter{padding:13px 20px}.briefing-panel .parameter span{font-size:12px}.briefing-panel .parameter strong{font-size:14px;line-height:1.5}.clock-unit{font-size:.45em;letter-spacing:1px;margin-left:6px;color:var(--cyan);vertical-align:middle}.round-clock strong{white-space:nowrap}.callsign-label{flex-wrap:wrap;max-width:470px}.callsign-label input{font-size:13px;min-height:42px;width:240px}.callsign-hint{flex-basis:100%;font:11px/1.6 Inter,system-ui,sans-serif;letter-spacing:0;color:#a7b4ca;margin-left:0}.callsign-label input:invalid{border-color:#384156}
+@media(max-width:800px){.lobby-grid>.briefing-panel,.lobby-grid>section:first-child{grid-column:auto;grid-row:auto}.briefing-panel .instructions-list li strong{font-size:15px}.briefing-panel .instructions-list li span{font-size:14px}.callsign-label{max-width:none}.callsign-label input{width:100%}.callsign-hint{font-size:12px}}

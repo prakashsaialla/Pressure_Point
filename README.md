@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-# PRESSURE POINT - Multiplayer Strategy Game
-
-A cyberpunk competitive strategy game for 2–8 operators. Players join a private room by code, take one timed action each round, compete for six districts, predict hidden crisis outcomes and earn Influence and performance bonuses. Highest Influence after five rounds wins.
-
-=======
 # PRESSURE POINT — Multiplayer Strategy Game
 
 A cyberpunk competitive strategy game for 2–8 operators. Players join a private room by code, take one timed action each round, compete for six districts, predict hidden crisis outcomes, and earn Influence and performance bonuses. Highest Influence after five rounds wins.
->>>>>>> e4f6937 (update files)
 
 ## What is included
 
@@ -15,27 +8,15 @@ A cyberpunk competitive strategy game for 2–8 operators. Players join a privat
 - Netlify Function at `netlify/functions/game.ts`
 - Strong-consistency Netlify Blobs room storage and conditional ETag writes
 - Server-validated room membership, resource costs, turn submissions, round resolution, scoring, and winner selection
-<<<<<<< HEAD
-- Server-validated room membership, resource costs, turn submissions, round resolution, scoring and winner selection
-=======
->>>>>>> e4f6937 (update files)
 - SVG project cover image at `public/pressure-point-cover.svg`
 - Automated pure game-engine tests at `tests/game-engine.test.mjs`
-- Root-level `netlify.toml`, `package.json` and `package-lock.json`
+- Root-level `netlify.toml`, `package.json`, and `package-lock.json`
 
 ## Rules in brief
 
-<<<<<<< HEAD
-- 2–8 players; five rounds; 30 seconds per round.
-- Each operator starts with 10 Credits, 3 Intel, 5 Energy, and 2 Security.
-- Choose one action per round: Expand, Generate, Fortify, Scout, Predict, Sabotage, or Recover.
-- Each operator starts with 10 Credits, 3 Intel, 5 Energy and 2 Security.
-- Choose one action per round: Expand, Generate, Fortify, Scout, Predict, Sabotage or Recover.
-=======
 - 2–8 players; five rounds; 60 seconds per round.
 - Each operator starts with 10 Credits, 3 Intel, 5 Energy, and 2 Security.
 - Choose one action per round: Expand, Generate, Fortify, Scout, Predict, Sabotage, or Recover.
->>>>>>> e4f6937 (update files)
 - Decisions are locked once submitted. The server resolves the round when everyone submits or the deadline expires.
 - Capturing a district earns 100 Influence. Controlled districts earn 25 Influence each round, with additional district-specific resources or Influence.
 - Correct predictions earn 50 Influence; the crisis objective earns 75; round efficiency earns 50; three positive rounds in a row earn a 75-point streak bonus. Successfully defending a sabotage earns 30 Influence.

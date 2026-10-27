@@ -18,7 +18,7 @@ export const CRISES = [
   { title: 'BLACK MARKET SURGE', description: 'A shadow economy is opening new channels. Risk-takers may profit, but the downside is real.', type: 'risk', objectiveActions: ['sabotage'], objective: 'Launch a sabotage operation', outcomes: ['positive','negative','stable'] },
 ];
 const uid = () => Math.random().toString(36).slice(2, 10).toUpperCase();
-const clampName = name => String(name || 'Operator').trim().replace(/[<>]/g, '').slice(0, 18) || 'Operator';
+const clampName = name => { const cleaned = String(name ?? '').trim().replace(/[<>]/g, '').slice(0, 18); if (!cleaned || cleaned.toLowerCase() === 'operator') throw new Error('Choose a callsign other than “Operator”. A callsign is required.'); return cleaned; };
 const player = (id, name) => ({ id, name: clampName(name), credits: 10, intel: 3, energy: 5, security: 2, score: 0, districts: [], submitted: false, lastAction: '', predictionsCorrect: 0, streak: 0 });
 const addEvent = (room, text, kind = 'INFO') => room.eventLog.push({ id: `${Date.now()}-${uid()}`, text, round: room.round, kind });
 function newCrisis(round) {
@@ -34,7 +34,9 @@ export function joinRoom(room, playerId, name) {
   if (room.status !== 'lobby') throw new Error('This match has already started.');
   if (room.players.some(p => p.id === playerId)) return room;
   if (room.players.length >= MAX_PLAYERS) throw new Error('This room is full (8 operators maximum).');
-  room.players.push(player(playerId, name));
+  const callsign = clampName(name);
+  if (room.players.some(p => p.name.trim().toLocaleLowerCase() === callsign.toLocaleLowerCase())) throw new Error('That callsign is already taken in this room. Choose a different name.');
+  room.players.push(player(playerId, callsign));
   addEvent(room, `${clampName(name)} connected to operations.`, 'CONNECT');
   return room;
 }

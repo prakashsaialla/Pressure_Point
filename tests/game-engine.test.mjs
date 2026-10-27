@@ -44,3 +44,13 @@ test('round timeout resolves exactly once and gives missing players fallback act
   assert.equal(room.resolvedRounds.length, count);
   assert.ok(room.eventLog.some(e => e.kind === 'TIMEOUT'));
 });
+
+
+test('requires a real callsign and rejects duplicate names regardless of case', () => {
+  assert.throws(() => createRoom('p1', '', 1000), /callsign is required/i);
+  assert.throws(() => createRoom('p1', 'Operator', 1000), /other than.*Operator/i);
+  const room = createRoom('p1', 'Nova', 1000);
+  assert.throws(() => joinRoom(room, 'p2', 'nova'), /already taken/i);
+  joinRoom(room, 'p2', 'Cipher');
+  assert.deepEqual(room.players.map(p => p.name), ['Nova', 'Cipher']);
+});
