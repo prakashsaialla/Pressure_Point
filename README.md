@@ -13,7 +13,6 @@ A cyberpunk competitive strategy game for 2–8 operators. Players join a privat
 - Netlify Function at `netlify/functions/game.ts`
 - Strong-consistency Netlify Blobs room storage and conditional ETag writes
 - Server-validated room membership, resource costs, turn submissions, round resolution, scoring, and winner selection
-=======
 - Server-validated room membership, resource costs, turn submissions, round resolution, scoring and winner selection
 - SVG project cover image at `public/pressure-point-cover.svg`
 - Automated pure game-engine tests at `tests/game-engine.test.mjs`
@@ -24,7 +23,6 @@ A cyberpunk competitive strategy game for 2–8 operators. Players join a privat
 - 2–8 players; five rounds; 30 seconds per round.
 - Each operator starts with 10 Credits, 3 Intel, 5 Energy, and 2 Security.
 - Choose one action per round: Expand, Generate, Fortify, Scout, Predict, Sabotage, or Recover.
-=======
 - Each operator starts with 10 Credits, 3 Intel, 5 Energy and 2 Security.
 - Choose one action per round: Expand, Generate, Fortify, Scout, Predict, Sabotage or Recover.
 - Decisions are locked once submitted. The server resolves the round when everyone submits or the deadline expires.
