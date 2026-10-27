@@ -1,6 +1,6 @@
 # PRESSURE POINT - Multiplayer Strategy Game
 
-A cyberpunk competitive strategy game for 2–8 operators. Players join a private room by code, take one timed action each round, compete for six districts, predict hidden crisis outcomes, and earn Influence and performance bonuses. Highest Influence after five rounds wins.
+A cyberpunk competitive strategy game for 2–8 operators. Players join a private room by code, take one timed action each round, compete for six districts, predict hidden crisis outcomes and earn Influence and performance bonuses. Highest Influence after five rounds wins.
 =======
 # PRESSURE POINT - Multiplayer Strategy Game
 
