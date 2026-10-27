@@ -16,7 +16,7 @@ A cyberpunk competitive strategy game for 2–8 operators. Players join a privat
 - Server-validated room membership, resource costs, turn submissions, round resolution, scoring and winner selection
 - SVG project cover image at `public/pressure-point-cover.svg`
 - Automated pure game-engine tests at `tests/game-engine.test.mjs`
-- Root-level `netlify.toml`, `package.json`, and `package-lock.json`
+- Root-level `netlify.toml`, `package.json` and `package-lock.json`
 
 ## Rules in brief
 
